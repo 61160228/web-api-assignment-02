@@ -23,13 +23,22 @@ app.post('/books', (req, res) => {
 
     let bookID = 0
 
-
     books.push(newBook)
-
 
     bookID = books.length - 1
 
     res.status(201).json(bookID)
+})
+
+app.get('/books/:id', (req, res) => {
+
+    let id = req.params.id
+
+    let book = {}
+
+    book = books[id]
+
+    res.status(200).json(book)
 })
 
 const port = 3000
