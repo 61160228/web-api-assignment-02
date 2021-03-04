@@ -1,11 +1,23 @@
 
 const express = require('express')
+const MongoClient = require('mongodb').MongoClient
+const ObjectID = require('mongodb').ObjectId
 const app = express()
 
 app.use(express.json())
-let books = []
 
-app.post('/books', (req, res) => {
+const url = 'mongodb+srv://superadmin:Galaxy@1141@cluster0.vufob.mongodb.net/sample_books?retryWrites=true&w=majority'
+const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true })
+let db, booksCollection
+
+async function connect() {
+    await client.connect()
+    db = client.db('booksdb')
+    booksCollection = db.collection('books')
+}
+connect()
+
+app.post('/books', async (req, res) => {
 
     let newTitle = req.body.title
     let newPrice = req.body.price
@@ -20,25 +32,12 @@ app.post('/books', (req, res) => {
         isbn: newIsbn,
         image_url: newImage,
     }
-
     let bookID = 0
 
-    books.push(newBook)
-
-    bookID = books.length - 1
+    const result = await booksCollection.insertOne(newBook)
+    bookID = result.insertedId
 
     res.status(201).json(bookID)
-})
-
-app.get('/books/:id', (req, res) => {
-
-    let id = req.params.id
-
-    let book = {}
-
-    book = books[id]
-
-    res.status(200).json(book)
 })
 
 const port = 3000
